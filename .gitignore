@@ -1,0 +1,13 @@
+.DS_store
+.ipynb_checkpoints
+Capstone_local.ipynb
+data/
+data/*
+data/*/*
+.tmp.drivedownload/
+*.csv
+*.html
+*.obj
+*.pdf
+*.json
+lovehate_words.txt
