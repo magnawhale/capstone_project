@@ -4,9 +4,9 @@ Capstone_local.ipynb
 data/*.json
 data/*/*.*
 .tmp.drivedownload/
-*.csv
-*.html
+tweet*.*
 *.obj
 *.pdf
 *.json
 lovehate_words.txt
+powerpoint/
