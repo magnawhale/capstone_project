@@ -5,7 +5,9 @@
 
 This project investigates whether there is any correlation between lunar phases and human behavioral trends, as seen through sentiment analysis of Tweets and time series analysis of stock prices and currency exchange rates. This project was inspired by the contentious academic claims regarding whether lunar cycles affeect human behavior (see [Thakur and Sharma, 1984](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1444800/) and [Shafer, et al., 2010](https://www.sciencedirect.com/science/article/pii/S0047235210000589?via%3Dihub) for two examples of opposing views; there are many scholars on both sides of this debate). 
 
-<img src="images/wordcloud_lovehate.png" width=60% align="center">
+<p align="center">
+    <img src="images/wordcloud_lovehate.png" width=60% align="center">
+</p>
 
 
 
