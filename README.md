@@ -3,7 +3,7 @@
 
 ## Introduction
 
-This project investigates whether there is any correlation between lunar phases and human behavioral trends, as seen through sentiment analysis of Tweets and time series analysis of stock prices and currency exchange rates. This project was inspired by the contentious academic claims regarding whether lunar cycles affeect human behavior (see [Thakur and Sharma, 1984](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1444800/) and [Shafer, et al., 2010](https://www.sciencedirect.com/science/article/pii/S0047235210000589?via%3Dihub) for two examples of opposing views; there are many scholars on both sides of this debate). 
+This project investigates whether there is any correlation between lunar phases and human behavioral trends, as seen through sentiment analysis of Tweets and time series analysis of stock prices and currency exchange rates. This project was inspired by the contentious academic claims regarding whether lunar cycles affect human behavior (see [Thakur and Sharma, 1984](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1444800/) and [Shafer, et al., 2010](https://www.sciencedirect.com/science/article/pii/S0047235210000589?via%3Dihub) for two examples of opposing views; there are many scholars on both sides of this debate). 
 
 <p align="center">
     <img src="images/wordcloud_lovehate.png" width=60% align="center">
@@ -13,7 +13,7 @@ This project investigates whether there is any correlation between lunar phases 
 
 ## Overview
 
-The code for this extensive project can be found the following notebooks:
+The code for this extensive project can be found in the following notebooks:
    * **[Capstone notebook](Capstone.ipynb)**: all of the code necessary for replicating results
    * **[Twitter Scraper notebook](Twitter_scraper.ipynb)**: streamlined code exclusively for scraping Twitter
    * **[Scattertext notebook](Scattertext.ipynb)**: code for generating HTML files for interactive graphs of Twitter searches
@@ -57,7 +57,7 @@ With Twitter lunar seasonality well established, I then ran the same FBProphet p
 
 ## Visualizing it all in search of answers
 
-Though this project's end goal was not to create a truly predictive model, hopefully the insights gained may be useful to other data scientists. The identification of a lunar-phase seasonality correlation with financial data may even be useful for incorporation in more advanced models built by investors that take into account dozens (or even hundreds?) of variables to make stock/currency trading decisions. Nevertheless, we can for the moment hope to gain a bit more knowledge of this behavioral lunar cycle through additonal visualizations of the Twitter data.
+Though this project's end goal was not to create a truly predictive model, hopefully the insights gained may be useful to other data scientists. The identification of a lunar-phase seasonality correlation with financial data may even be useful for incorporation in more advanced models built by investors that take into account dozens (or even hundreds?) of variables to make stock/currency trading decisions. Nevertheless, we can for the moment hope to gain a bit more knowledge of this behavioral lunar cycle through additional visualizations of the Twitter data.
 
 For instance, examine the word cloud at the top of this file that was generated using the [wordcloud](http://amueller.github.io/word_cloud/ "wordcloud documentation") library; it clearly conveys information on word frequencies from that particular keyword search (in this instance: "love OR peace OR hate OR war"). However, with such a large corpus of tweets (+365,000 tweets containing +5,000,000 words) the runtime for even the simplest word cloud on a standard laptop is about 12 hours.
 
@@ -73,7 +73,7 @@ A simpler approach was to create a bag of words, filter for only the top ***n***
     <img src="images/tw_histograms.png" width=90% class="center">
 </p>
 
-Lastly, and probably my favorite, is utilizing the [Scattertext](https://github.com/JasonKessler/scattertext "Scattertext github") library to make a beautiful, interactive, and searchable graph of the Twitter data. This library actually generates an HTML file to display the graphs, and with a corpus as large as mine the HTML files average 30Mb apiece which results in load times of around 5-10 minutes in a web browser. The library was designed for small to medium size datasets, not my monstrosities, but the results are nevertheless worth the wait. The visualization is interactive (mouse-over each data point and an informative tooltip appears) and is keyword-searchable. On top of that, selecting a keyword also displays numerous categorical (postive/negative) occurences of the word below the graph to contextualize how it is commonly used in each scenario. I can immediately see that this library has great potential to be advantageous to academic researchers, particularly in the fields of literature, history, political science, and much more. 
+Lastly, and probably my favorite, is utilizing the [Scattertext](https://github.com/JasonKessler/scattertext "Scattertext github") library to make a beautiful, interactive, and searchable graph of the Twitter data. This library actually generates an HTML file to display the graphs, and with a corpus as large as mine the HTML files average 30Mb apiece which results in load times of around 5-10 minutes in a web browser. The library was designed for small to medium size datasets, not my monstrosities, but the results are nevertheless worth the wait. The visualization is interactive (mouse-over each data point and an informative tooltip appears) and is keyword-searchable. On top of that, selecting a keyword also displays numerous categorical (positive/negative) occurrences of the word below the graph to contextualize how it is commonly used in each scenario. I can immediately see that this library has great potential to be advantageous to academic researchers, particularly in the fields of literature, history, political science, and much more. 
 
 <p align="center">
     <img src="images/tw_nowords_scattertext.png" width=95% class="center">
