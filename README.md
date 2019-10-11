@@ -1,7 +1,7 @@
 
 # Lunar Cycles and Human Behavior
 
-   * [Powerpoint project summary](lunar.pptx)
+   * [Powerpoint project summary](Lunar.pptx)
 
 ## Introduction
 
