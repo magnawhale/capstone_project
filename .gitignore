@@ -8,5 +8,7 @@ tweet*.*
 *.obj
 *.pdf
 *.json
+*.docx
+*.tmp
 lovehate_words.txt
 powerpoint/
