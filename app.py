@@ -15,6 +15,23 @@ from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 
 app = dash.Dash(__name__)
 
+markdown_paragraph = '''
+### About this Project
+
+#### By Matthew E. Parker
+
+Data Science Bootcamp Capstone Project for Flatiron School. 
+For more information about this project, please read my 
+[Medium article]('https://medium.com/@matthewparker_1059/modeling-lunar-cycles-in-tweets-and-financial-markets-using-facebook-prophet-d6ec0e9e20f'). 
+If you wish to look at the code for yourself, please refer to the project's
+[GitHub repository]('https://github.com/magnawhale/capstone_project').
+
+For a fascinating (but slow-loading) sample exploration of Tweets, 
+download and then open view my 
+[Scattertext html file]('https://github.com/magnawhale/capstone_project/blob/master/Scattertext_nowords_example.html').
+'''
+
+
 stopwords = set(ENGLISH_STOP_WORDS)
 stopwords.update(['twitter','com','pic','ve','ll','just','like','don','really','00'])
 
@@ -44,38 +61,43 @@ app.layout = html.Div(children=[    ### whole page
         children='Lunar Cycles & Human Behavior',
         style={'textAlign': 'center'}
     ),
-    
-    
-    html.Div([                      ### two column area
-        
+
+    ### two column area
+    html.Div([    
+
         ####################################
         # The area with the dropdown menus #
         html.Div([
 
             # Adding a dropdown menu
             html.Div([
-                html.Label('Twitter Search Phrases:'),
+                html.P('Twitter Search Phrases:'),
                 dcc.Dropdown(
                     id='query-dropdown',
                     options=[{'label': i, 'value': i} for i in queries],
-                    value='(no keywords entered)'       # default initial value...remove to default as blank
+                    value='(no keywords entered)'  # default initial value
                 ),
-            ]),
-
-            # Adding a second dropdown menu
-            html.Div([
-                html.Label('Moon Phrase:'),
+                html.P(' d', style={'color':'#FFFFFF'}),
+                html.P('Moon Phrase:'),
                 dcc.Dropdown(
                     id='moon-dropdown',
                     options=[{'label': i, 'value': i} for i in moons],
-                    value='No Phase'       # default initial value...remove to default as blank
+                    value='No Phase'   # default initial value
                 ),
+                html.P(' d', style={'color':'#FFFFFF'}),
+                dcc.Markdown(markdown_paragraph)
             ]),
 
+
             # setting the layout of the dropdown DIV area
-			],
-			style={'width': '30%', 'display': 'inline-block'}  ###need to experiment with these
+            ], style = {'width': '20%',
+                'height': '49%',
+                'display': 'inline-block'
+            }
         ),
+
+        html.Div([], style={'width': '5%', 'display': 'inline-block'}),  ## just a spacer
+
 
         #############################
         # The area with the display #
@@ -100,8 +122,8 @@ app.layout = html.Div(children=[    ### whole page
                 ),
                 html.Div(id='slider-output-container')
             ]),
-			],
-            style={'width': '69%', 'display': 'inline-block'}  ###setting the graph/tabs area to right of options
+            ],
+            style={'width': '75%', 'display': 'inline-block'}  ###setting the graph/tabs area to right of options
         )
     ])
 ])
