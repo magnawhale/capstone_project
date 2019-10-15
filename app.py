@@ -75,8 +75,6 @@ def plot_holidays_component_plotly(m, fcst):
                             title='Lunar Phase Correlation',
                             zerolinecolor='#AAA')
     layout = go.Layout(
-#        width=figsize[0],
-#        height=figsize[1],
         showlegend=False,
         xaxis=xaxis,
         yaxis=yaxis
@@ -128,16 +126,22 @@ moon_df.date = pd.to_datetime(moon_df.date, infer_datetime_format=True)
 phase_names = ['Full Moon','Last Quarter','New Moon','First Quarter']
 ph_list = []
 for phase in phase_names:
-	moons = pd.DataFrame(moon_df.loc[moon_df['phase'] == phase]['date']).reset_index(drop=True)
-	moons.columns = ['ds']
-	moons['holiday'] = str(phase).lower().replace(" ", "")
-	moons['lower_window'] = 0
-	moons['upper_window'] = 1
-	ph_list.append(moons)
+    moons = pd.DataFrame(moon_df.loc[moon_df['phase'] == phase]['date']).reset_index(drop=True)
+    moons.columns = ['ds']
+    moons['holiday'] = str(phase).lower().replace(" ", "")
+    moons['lower_window'] = -0
+    moons['upper_window'] = 1
+    ph_list.append(moons)
 phases_FBP = pd.concat((ph_list[0], ph_list[1], ph_list[2], ph_list[3]))
+
+weekends_df = pd.read_csv('weekends_2018_19.csv')
+weekends_df.date = pd.to_datetime(weekends_df.date, infer_datetime_format=True)
 
 tw_word_freqs_df = pd.read_csv('tw_word_freqs.csv')
 tw_word_freqs_df['count'] = tw_word_freqs_df['count'].astype(int)
+
+fins_df = pd.read_csv('financials.csv')
+fins_df.date = pd.to_datetime(fins_df.date, infer_datetime_format=True)
 
 queries = ['(no keywords entered)',
            'love OR peace OR hate OR war',
@@ -147,7 +151,13 @@ queries = ['(no keywords entered)',
            'politics OR government OR Trump',
            'data science OR coding OR programming']
 moons = ['No Phase', 'Full Moon','Last Quarter','New Moon','First Quarter']
-
+stocks = {'Microsoft':'MSFT',
+          'S&P 500 Index':'INX',
+          'SBA Communications':'SBAC'}
+currencies = {'Euro':'EUR'}
+cryptocurrencies = {'Bitcoin':'BTC'}
+fin_metrics = ['open','close','close_24','change_24','range',
+               'range_24','high','low','high_24','low_24']
 
 ############################
 #### Application layout ####
@@ -157,85 +167,71 @@ app.layout = html.Div(children=[    ### whole page
         style={'textAlign': 'center'}
     ),
 
-    ### two column area
+    ### three column area
     html.Div([    
 
         ####################################
         # The area with the dropdown menus #
-        html.Div([
+        html.Div(id='left-column', children=[
 
-            # Adding a dropdown menu
+            # Choosing a category
             html.Div([
-#                html.P('Twitter Search Phrases:'),
-                dcc.Dropdown(
-                    id='query-dropdown',
-                    options=[{'label': i, 'value': i} for i in queries],
-					placeholder="Select a Twitter Search Phrase",
-                    value='(no keywords entered)'  # default initial value
-                ),
-                html.Br(),
-                html.P('Mood for which to explore seasonality:'),
-                dcc.RadioItems(
-				    id='mood-radio',
-                    options=[
-                        {'label': 'Positivity', 'value': 'positive'},
-                        {'label': 'Negativity', 'value': 'negative'},
-                    ],
-                    value='positive',
-                    labelStyle={'display': 'inline-block'}
-                ),
-				html.Br(),
-#                html.P('Moon Phase:'),
-                dcc.Dropdown(
-                    id='moon-dropdown',
-                    options=[{'label': i, 'value': i} for i in moons],
-					placeholder='Select a Moon Phase',
-                    value='No Phase'   # default initial value
-                ),
-				html.Br(),
-                dcc.Markdown(markdown_paragraph)
-            ]),
+                dcc.Tabs(id='categories', value='cat-1', children=[
+                    dcc.Tab(id='cat1', label='Twitter Sentiment', value='cat-1'),
+                    dcc.Tab(id='cat2', label='Financial Markets', value='cat-2'),
+                ]),
 
+                ## displayed below tabs ##
+                html.Div(id='categories-content', children=[
+                    html.Div([
+                        html.P(id='radio-label'),
+                        dcc.RadioItems(id='radio'),
+                        html.Br(),
+                        dcc.Dropdown(id='dropdown1'),
+                        dcc.Dropdown(id='dropdown2')
+                    ]),                    
+                    html.Br(),
+                    dcc.Markdown(markdown_paragraph),
+                ]),
 
             # setting the layout of the dropdown DIV area
-            ], style = {'width': '20%',
-                'height': '49%',
-                'display': 'inline-block'
-            }
-        ),
+            ], style = {'width': '22%', 'display': 'inline-block'}
+            ),
+        ]),
 
-        html.Div([], style={'width': '5%', 'display': 'inline-block'}),  ## just a spacer
+
+        #################
+        # Just a spacer #
+        html.Div([], id='spacer-column', style={'width': '3%', 'display': 'inline-block'}),
 
 
         #############################
         # The area with the display #
-
-        ### TABS ###
-        html.Div([
-            dcc.Tabs(id='tabs', value='tab-1', children=[
-                dcc.Tab(id='tab1', label='Daily Sentiment', value='tab-1'),
-                dcc.Tab(id='tab2', label='Word Frequencies', value='tab-2'),
-                dcc.Tab(id='tab3', label='Facebook Prophet Seasonality', value='tab-3'),
+        html.Div(id='right-column', children=[
+            html.Div(id='cat-graphs', children=[
+                dcc.Tabs(id='tabs', value='tab-1', children=[
+                    dcc.Tab(id='tab1', value='tab-1'),
+                    dcc.Tab(id='tab2', value='tab-2'),
+                    dcc.Tab(id='tab3', value='tab-3'),
+                ]),
+                ## displayed below tabs ##
+                html.Div(id='tabs-content', children=[
+                    dcc.Graph(id='graph'),               ########### all of the graphs ##############
+                    dcc.Slider(
+                        id='freq-slider',
+                        min=1,
+                        max=500,
+                        step=1,
+                        value=50
+                    ),
+                    html.Div(id='slider-output-container')
+                ])
             ]),
-
-            ## displayed below tabs ##
-            html.Div(id='tabs-content', children=[
-                dcc.Graph(id='tw-graph'),
-
-                dcc.Slider(
-                    id='freq-slider',
-                    min=1,
-                    max=1000,
-                    step=1,
-                    value=50
-                ),
-                html.Div(id='slider-output-container')
-            ]),
-            ],
-            style={'width': '75%', 'display': 'inline-block'}  ###setting the graph/tabs area to right of options
+        ],style={'width': '75%', 'display': 'inline-block'}  ###setting the graph/tabs area to right of options
         )
     ])
 ])
+
 
 
 ####################################################
@@ -243,78 +239,205 @@ app.layout = html.Div(children=[    ### whole page
 ####################################################
 
 
+############## Callbacks for options section ###########
 @app.callback(
-    Output('slider-output-container', 'children'),
-    [Input('freq-slider', 'value'),
-     Input('query-dropdown', 'value')])
-def update_output(selected_value, selected_query):
-    return f'Displaying the {selected_value} most frequent words from the query: "{selected_query}"'
+    Output('radio-label', 'children'),
+    [Input('categories', 'value')])
+def update_radio_label(selected_category):
+    if selected_category == 'cat-1':    ### Twitter Sentiment
+        return 'Mood for which to explore seasonality:'
+    elif selected_category == 'cat-2':  ### Financial Markets
+        return 'Type of financial object:'
 
 
 @app.callback(
-    Output('tw-graph', 'figure'),
-    [Input('query-dropdown', 'value'),
-	 Input('mood-radio', 'value'),
-     Input('moon-dropdown', 'value'),
+    Output('radio', 'options'),
+    Output('radio', 'value'),
+    Output('radio', 'labelStyle'),
+    [Input('categories', 'value')])
+def update_radio_options(selected_category):
+    if selected_category == 'cat-1':     ### Twitter Sentiment
+        options=[{'label': 'Positivity', 'value': 'positive'},
+                {'label': 'Negativity', 'value': 'negative'}]
+        value='positive'
+        labelStyle={'display': 'inline-block'}
+        return options, value, labelStyle
+    elif selected_category == 'cat-2':    ### Financial Markets
+        options=[{'label': 'Stock/Index', 'value': 'stock'},
+            {'label': 'Currency', 'value': 'currency'},
+            {'label': 'Cryptocurrency', 'value': 'cryptocurrency'}]
+        value='stock'
+        labelStyle={}
+        return options, value, labelStyle
+
+
+
+@app.callback(
+    Output('dropdown1', 'options'),
+    Output('dropdown1', 'placeholder'),
+    Output('dropdown2', 'options'),
+    Output('dropdown2', 'placeholder'),
+    [Input('categories', 'value'),
+     Input('radio', 'value')])
+def update_dropdown_options(selected_category, selected_fin_type):
+    if selected_category == 'cat-1':    ### Twitter Sentiment
+        options1 = [{'label': i, 'value': i} for i in queries]
+        placeholder1 = "Select a Twitter Search Phrase"
+        options2 = [{'label': i, 'value': i} for i in moons]
+        placeholder2 = 'Select a Moon Phase'
+        return options1, placeholder1, options2, placeholder2
+    elif selected_category == 'cat-2':  ### Financial Markets
+        if selected_fin_type == 'stock':
+            options1 = [{'label': i, 'value': j} for i,j in stocks.items()]
+            placeholder1 = "Select a Ticker Symbol"
+            options2 = [{'label': i, 'value': i} for i in fin_metrics]
+            placeholder2 = "Select a metric to graph"
+            return options1, placeholder1, options2, placeholder2
+        elif selected_fin_type == 'currency':
+            options1 = [{'label': i, 'value': j} for i,j in currencies.items()]
+            placeholder1 = "Select a Ticker Symbol"
+            options2 = [{'label': i, 'value': i} for i in fin_metrics]
+            placeholder2 = "Select a metric to graph"
+            return options1, placeholder1, options2, placeholder2
+        elif selected_fin_type == 'cryptocurrency':
+            options1 = [{'label': i, 'value': j} for i,j in cryptocurrencies.items()]
+            placeholder1 = "Select a Ticker Symbol"
+            options2 = [{'label': i, 'value': i} for i in fin_metrics]
+            placeholder2 = "Select a metric to graph"
+            return options1, placeholder1, options2, placeholder2
+
+
+
+
+
+##########   Callbacks for Graph section (including tabs)############
+
+@app.callback(
+    Output('tab1', 'label'),
+    Output('tab2', 'label'),
+    Output('tab3', 'label'),
+    [Input('categories', 'value')])
+def update_tab_labels(selected_category):
+    if selected_category == 'cat-1':
+        return 'Daily Sentiment', 'Word Frequencies', 'Facebook Prophet Seasonality'
+    elif selected_category == 'cat-2':
+        return 'Overall Performance', 'Chosen Metric', 'Facebook Prophet Seasonality'
+
+
+@app.callback(
+    Output('graph', 'figure'),
+    [Input('categories', 'value'),
+     Input('radio', 'value'),
+     Input('dropdown1', 'value'),
+     Input('dropdown2', 'value'),
      Input('tabs', 'value'),
      Input('freq-slider', 'value')])
-def update_graph(selected_query, selected_mood, selected_moon, selected_tab, selected_n):
-    grouped = tw_df[tw_df['query'] == selected_query]
-#    tweets_df.dropna(inplace=True)
-#    grouped = pd.DataFrame(tweets_df.groupby(['date', 'sentiment'])['tally'].sum()).reset_index()
-
-    if selected_tab == 'tab-1':
-        traces = []
-        for sentiment in grouped.sentiment.unique():
-            temp_df = grouped[grouped.sentiment == sentiment]
+def update_graph(selected_category, 
+                 selected_radio, 
+                 selected_dropdown1, 
+                 selected_dropdown2, 
+                 selected_tab,
+                 selected_n):
+    if selected_category == 'cat-1':     ### Twitter Sentiment ###
+        grouped = tw_df[tw_df['query'] == selected_dropdown1]
+        if selected_tab == 'tab-1':      # 'Daily Sentiment'
+            traces = []
+            for sentiment in grouped.sentiment.unique():
+                temp_df = grouped[grouped.sentiment == sentiment]
+                traces.append(go.Scatter(
+                                    x=temp_df.date,
+                                    y=temp_df['tally'],
+                                    name=sentiment,
+                                    text=temp_df['sentiment'],
+                                    mode='lines',
+                                    opacity=0.8))
+            figure = {'data': traces,
+                'layout': go.Layout(colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
+                                    #height=600,
+                                    title=f"Daily Sentiment at Midnight (UTC) for : '{selected_dropdown1}'",
+                                    xaxis={"title":"Date",
+                                           'rangeslider': {'visible': True},
+                                           'type': 'date'},
+                                    yaxis={"title":"Sentiment Quantity (~1,000/day total)"})}
+            return figure
+        elif selected_tab == 'tab-2':      # 'Word Frequencies'
+            df2 = tw_word_freqs_df[(tw_word_freqs_df['query'] == selected_dropdown1) &
+                                   (tw_word_freqs_df['phase'] == selected_dropdown2)][:selected_n]
+            ### plotting
+            trace = [go.Bar(x=df2['text'], y=df2['count'], name='', )]
+            figure = {'data': trace,
+                'layout': go.Layout(title=f"Top {selected_n} Words for {selected_dropdown2} at Midnight UTC",
+                    hovermode="closest",
+                    xaxis={
+                        'title': f"Search Keywords: {selected_dropdown1}", 
+                        'titlefont': {'color': 'black', 'size': 14},
+                        'tickfont': {'size': 11, 'color': 'black'}},
+                    yaxis={'tickfont': {'color': 'black'}}
+                )
+            }
+            return figure
+        elif selected_tab == 'tab-3':      # 'Facebook Prophet Seasonality'
+            #prepare data for FBProphet
+            grp_mood = grouped[grouped.sentiment == selected_radio].drop(['sentiment', 'query'], axis=1).reset_index(drop=True)
+            grp_mood.columns = ['ds','y']
+            #make model and forecast
+            m = Prophet(holidays=phases_FBP)
+            m.fit(grp_mood)
+            future = m.make_future_dataframe(periods=1)
+            forecast = m.predict(future)
+            #plot holidays (lunar seasonalities)
+            figure = plot_holidays_component_plotly(m, forecast)
+            return figure
+    elif selected_category == 'cat-2':       ### Financial Markets ###
+        temp_df = fins_df[fins_df['ticker'] == selected_dropdown1].reset_index(drop=True)
+        if selected_tab == 'tab-1':        # 'Overall Performance'
+            traces = []
             traces.append(go.Scatter(
-                                x=temp_df.date,
-                                y=temp_df['tally'],
-                                name=sentiment,
-                                text=temp_df['sentiment'],
-                                mode='lines',
-                                opacity=0.8))
-        figure = {'data': traces,
-            'layout': go.Layout(colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
-                                #height=600,
-                                title=f"Daily Sentiment at Midnight (UTC) for : '{selected_query}'",
-                                xaxis={"title":"Date",
-                                       'rangeslider': {'visible': True},
-                                       'type': 'date'},
-                                yaxis={"title":"Sentiment Quantity (~1,000/day total)"})}
-        return figure
-
-    elif selected_tab == 'tab-2':
-        df2 = tw_word_freqs_df[(tw_word_freqs_df['query'] == selected_query) &
-                               (tw_word_freqs_df['phase'] == selected_moon)][:selected_n]
-        ### plotting
-        trace = [go.Bar(x=df2['text'], y=df2['count'], name='', )]
-        figure = {'data': trace,
-            'layout': go.Layout(title=f"Top {selected_n} Words for {selected_moon} at Midnight UTC",
-                hovermode="closest",
-                xaxis={
-                    'title': f"Search Keywords: {selected_query}", 
-                    'titlefont': {'color': 'black', 'size': 14},
-                    'tickfont': {'size': 11, 'color': 'black'}},
-                yaxis={'tickfont': {'color': 'black'}}
-            )
-        }
-        return figure
-
-    elif selected_tab == 'tab-3':
-        #prepare data for FBProphet
-        grp_mood = grouped[grouped.sentiment == selected_mood].drop(['sentiment', 'query'], axis=1).reset_index(drop=True)
-        grp_mood.columns = ['ds','y']
-
-        #make model and forecast
-        m = Prophet(holidays=phases_FBP)
-        m.fit(grp_mood)
-        future = m.make_future_dataframe(periods=1)
-        forecast = m.predict(future)
-
-        #plot holidays (lunar seasonalities)
-        figure = plot_holidays_component_plotly(m, forecast)
-        return figure
+                x=temp_df['date'],
+                y=temp_df['close'],
+                name=selected_dropdown1,
+                text=temp_df['close'],
+                mode='lines',
+                opacity=0.8))
+            figure = {'data': traces,
+                'layout': go.Layout(colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
+                    title=f"{selected_dropdown1} Daily Closing Price for 2018",
+                    xaxis={"title":"Date",
+                           'rangeslider': {'visible': True},
+                           'type': 'date'},
+                    yaxis={"title": "Closing Price (in USD)"})}
+            return figure
+        elif selected_tab == 'tab-2':      # 'Chosen Metric'
+            traces = []
+            traces.append(go.Scatter(
+                x=temp_df['date'],
+                y=temp_df[selected_dropdown2],
+                name=selected_dropdown1,
+                text=temp_df[selected_dropdown2],
+                mode='lines',
+                opacity=0.8))
+            figure = {'data': traces,
+                'layout': go.Layout(colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
+                    title=f"{selected_dropdown1} Daily Performance of '{selected_dropdown2}' metric for 2018",
+                    xaxis={"title":"Date",
+                           'rangeslider': {'visible': True},
+                           'type': 'date'},
+                    yaxis={"title":f"{selected_dropdown2} (in USD)"})}
+            return figure
+        elif selected_tab == 'tab-3':      # 'Facebook Prophet Seasonality'
+            #prepare data for FBProphet
+            fbp_temp_df = temp_df[['date', selected_dropdown2]]
+            fbp_temp_df.columns = ['ds','y']
+            #make model and forecast
+            m = Prophet(holidays=phases_FBP)
+            m.fit(grp_mood)
+            future = m.make_future_dataframe(periods=60, freq='D')
+            if selected_radio != 'cryptocurrency':
+                future = future[~future['ds'].isin(weekends_df.date)]            
+            forecast = m.predict(future)
+            #plot holidays (lunar seasonalities)
+            figure = plot_holidays_component_plotly(m, forecast)
+            return figure
 
 
 
