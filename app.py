@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import dash
+import dash_bootstrap_components as dbc   #for getting columns/tabs to work
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import pandas as pd
 import plotly.graph_objs as go
 from sklearn.feature_extraction.text import CountVectorizer
@@ -92,14 +93,13 @@ def plot_holidays_component_plotly(m, fcst):
 #### BELOW IS THE CODE FOR THE DASHBOARD ####
 #############################################
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.GRID])
 
 markdown_paragraph = '''
 ### About this Project
 
-#### By Matthew E. Parker
-
 Data Science Bootcamp Capstone Project for Flatiron School. 
+
 For more information about this project, please read my 
 [Medium article]('https://medium.com/@matthewparker_1059/modeling-lunar-cycles-in-tweets-and-financial-markets-using-facebook-prophet-d6ec0e9e20f'). 
 If you wish to look at the code for yourself, please refer to the project's
@@ -159,75 +159,120 @@ cryptocurrencies = {'Bitcoin':'BTC'}
 fin_metrics = ['open','close','close_24','change_24','range',
                'range_24','high','low','high_24','low_24']
 
+
+tabs_styles = {
+    'height': '36px'
+}
+tab_style = {
+    'borderBottom': '1px solid #d6d6d6',
+    'padding': '11px',
+    'fontWeight': 'bold'
+}
+
+tab_selected_style = {
+    'borderTop': '1px solid #d6d6d6',
+    'borderBottom': '1px solid #d6d6d6',
+    'backgroundColor': '#119DFF',
+    'color': 'white',
+    'padding': '11px',
+    'fontWeight': 'bold'
+}
+
+
+
+
 ############################
 #### Application layout ####
-app.layout = html.Div(children=[    ### whole page
-    html.H1(                        ### page header
-        children='Lunar Cycles & Human Behavior',
-        style={'textAlign': 'center'}
+app.layout = html.Div(children=[               ### whole page
+    html.H1('Lunar Cycles & Human Behavior',   ### page header
+        style={'textAlign': 'center', 'margin-bottom': 0.3}
     ),
+    html.H3('by Matthew E. Parker',
+        style={'textAlign': 'center', 'margin-top': 0.1, 'margin-bottom': 0.2}
+    ),
+    html.H5(['(best viewed in Google Chrome)'],
+        style={'textAlign': 'center', 'margin-top': 0.2, 'margin-bottom': 0}
+        ),
+    html.Br(),
 
     ### three column area
-    html.Div([    
+    dbc.Row([    
 
         ####################################
         # The area with the dropdown menus #
-        html.Div(id='left-column', children=[
+        dbc.Col(id='left-column', width=3, children=[
 
             # Choosing a category
-            html.Div([
-                dcc.Tabs(id='categories', value='cat-1', children=[
-                    dcc.Tab(id='cat1', label='Twitter Sentiment', value='cat-1'),
-                    dcc.Tab(id='cat2', label='Financial Markets', value='cat-2'),
-                ]),
-
-                ## displayed below tabs ##
-                html.Div(id='categories-content', children=[
-                    html.Div([
-                        html.P(id='radio-label'),
-                        dcc.RadioItems(id='radio'),
-                        html.Br(),
-                        dcc.Dropdown(id='dropdown1'),
-                        dcc.Dropdown(id='dropdown2')
-                    ]),                    
-                    html.Br(),
-                    dcc.Markdown(markdown_paragraph),
-                ]),
-
-            # setting the layout of the dropdown DIV area
-            ], style = {'width': '22%', 'display': 'inline-block'}
+            html.Div( 
+                children=[
+                    dcc.Tabs(id='categories', 
+                        value='cat-1', 
+                        children=[
+                            dcc.Tab(id='cat1', label='Twitter Sentiment', value='cat-1', 
+                                style=tab_style, selected_style=tab_selected_style),
+                            dcc.Tab(id='cat2', label='Financial Markets', value='cat-2', 
+                                style=tab_style, selected_style=tab_selected_style),
+                        ]
+                    ),
+                    
+                    
+                    ## displayed below category tabs ##
+                    html.Div(id='categories-content', 
+                        children=[
+                            html.Table(style={'border-spacing': 7}, children=[
+                                html.Tr(id='radio-label', children='Radio:'),
+                                dcc.RadioItems(id='radio'),
+                                html.Tr([
+                                    html.Div(id='dropdown1_label', children="Dropdown1:"),
+                                    dcc.Dropdown(id='dropdown1'),
+                                ]),
+                                html.Tr([
+                                    html.Div(id='dropdown2_label', children="Dropdown2:"),
+                                    dcc.Dropdown(id='dropdown2'),
+                                ]),
+                            ]),                    
+                            dcc.Markdown(markdown_paragraph),
+                        ]
+                    ),
+                ],
             ),
         ]),
 
 
-        #################
-        # Just a spacer #
-        html.Div([], id='spacer-column', style={'width': '3%', 'display': 'inline-block'}),
-
-
         #############################
         # The area with the display #
-        html.Div(id='right-column', children=[
-            html.Div(id='cat-graphs', children=[
-                dcc.Tabs(id='tabs', value='tab-1', children=[
-                    dcc.Tab(id='tab1', value='tab-1'),
-                    dcc.Tab(id='tab2', value='tab-2'),
-                    dcc.Tab(id='tab3', value='tab-3'),
-                ]),
-                ## displayed below tabs ##
-                html.Div(id='tabs-content', children=[
-                    dcc.Graph(id='graph'),               ########### all of the graphs ##############
-                    dcc.Slider(
-                        id='freq-slider',
-                        min=1,
-                        max=500,
-                        step=1,
-                        value=50
+        dbc.Col(id='right-column', width=9,
+            children=[
+                html.Div(id='cat-graphs', children=[
+                    dcc.Tabs(id='tabs', 
+                        value='tab-1', 
+                        style={
+                            'height': '45px'
+                        },
+                        children=[
+                            dcc.Tab(id='tab1', value='tab-1', 
+                                style=tab_style, selected_style=tab_selected_style),
+                            dcc.Tab(id='tab2', value='tab-2', 
+                                style=tab_style, selected_style=tab_selected_style),
+                            dcc.Tab(id='tab3', value='tab-3', 
+                                style=tab_style, selected_style=tab_selected_style),
+                        ]
                     ),
-                    html.Div(id='slider-output-container')
-                ])
-            ]),
-        ],style={'width': '75%', 'display': 'inline-block'}  ###setting the graph/tabs area to right of options
+                    ## displayed below tabs ##
+                    html.Div(id='tabs-content', children=[
+                        dcc.Graph(id='graph'),               ########### all graphs ##############
+                        dcc.Slider(                  ### slider just for word freq. histograms ###
+                            id='freq-slider',
+                            min=1,
+                            max=500,
+                            step=1,
+                            value=50
+                        ),
+                        html.Div(id='slider-output-container'),
+                        html.Br()
+                    ])
+                ]),
+            ]
         )
     ])
 ])
@@ -241,6 +286,14 @@ app.layout = html.Div(children=[    ### whole page
 
 ############## Callbacks for options section ###########
 @app.callback(
+    Output('slider-output-container', 'children'),
+    [Input('freq-slider', 'value'),
+     Input('dropdown1', 'value')])
+def update_output(selected_value, selected_query):
+    return f'Displaying the {selected_value} most frequent words from the query: "{selected_query}"'
+
+
+@app.callback(
     Output('radio-label', 'children'),
     [Input('categories', 'value')])
 def update_radio_label(selected_category):
@@ -251,11 +304,11 @@ def update_radio_label(selected_category):
 
 
 @app.callback(
-    Output('radio', 'options'),
-    Output('radio', 'value'),
-    Output('radio', 'labelStyle'),
+    [Output('radio', 'options'),
+     Output('radio', 'value'),
+     Output('radio', 'labelStyle')],
     [Input('categories', 'value')])
-def update_radio_options(selected_category):
+def update_radio(selected_category):
     if selected_category == 'cat-1':     ### Twitter Sentiment
         options=[{'label': 'Positivity', 'value': 'positive'},
                 {'label': 'Negativity', 'value': 'negative'}]
@@ -267,45 +320,50 @@ def update_radio_options(selected_category):
             {'label': 'Currency', 'value': 'currency'},
             {'label': 'Cryptocurrency', 'value': 'cryptocurrency'}]
         value='stock'
-        labelStyle={}
+        labelStyle={'display': 'block'}
         return options, value, labelStyle
 
 
-
 @app.callback(
-    Output('dropdown1', 'options'),
-    Output('dropdown1', 'placeholder'),
-    Output('dropdown2', 'options'),
-    Output('dropdown2', 'placeholder'),
+    [Output('dropdown1_label', 'children'),
+     Output('dropdown1', 'options'),
+     Output('dropdown1', 'value'),
+     Output('dropdown2_label', 'children'),
+     Output('dropdown2', 'options'),
+     Output('dropdown2', 'value')],
     [Input('categories', 'value'),
-     Input('radio', 'value')])
-def update_dropdown_options(selected_category, selected_fin_type):
-    if selected_category == 'cat-1':    ### Twitter Sentiment
-        options1 = [{'label': i, 'value': i} for i in queries]
-        placeholder1 = "Select a Twitter Search Phrase"
-        options2 = [{'label': i, 'value': i} for i in moons]
-        placeholder2 = 'Select a Moon Phase'
-        return options1, placeholder1, options2, placeholder2
-    elif selected_category == 'cat-2':  ### Financial Markets
+     Input('radio', 'value')],
+    [State('dropdown1', 'value'),
+     State('dropdown2', 'value')])
+def update_dropdown_options(selected_category, selected_fin_type, drop1, drop2):
+    if selected_category == 'cat-1':             ### Twitter Sentiment
+        if drop1 in queries[1:] or drop2 in moons[1:]:
+            raise PreventUpdate
+        else:
+            dropdown1_label = 'Select a Twitter Search Phrase:'
+            options1 = [{'label': i, 'value': i} for i in queries]
+            value1 = '(no keywords entered)'
+            dropdown2_label = 'Select a Moon Phase:'
+            options2 = [{'label': i, 'value': i} for i in moons]
+            value2 = 'No Phase'
+            return dropdown1_label, options1, value1, dropdown2_label, options2, value2
+    elif selected_category == 'cat-2':            ### Financial Markets
+        dropdown1_label = "Select a Ticker Symbol:"
+        dropdown2_label = "Select a metric to graph:"
+        options2 = [{'label': i, 'value': i} for i in fin_metrics]
+        value2 = 'change_24'
         if selected_fin_type == 'stock':
             options1 = [{'label': i, 'value': j} for i,j in stocks.items()]
-            placeholder1 = "Select a Ticker Symbol"
-            options2 = [{'label': i, 'value': i} for i in fin_metrics]
-            placeholder2 = "Select a metric to graph"
-            return options1, placeholder1, options2, placeholder2
+            value1 = 'MSFT'
+            return dropdown1_label, options1, value1, dropdown2_label, options2, value2
         elif selected_fin_type == 'currency':
             options1 = [{'label': i, 'value': j} for i,j in currencies.items()]
-            placeholder1 = "Select a Ticker Symbol"
-            options2 = [{'label': i, 'value': i} for i in fin_metrics]
-            placeholder2 = "Select a metric to graph"
-            return options1, placeholder1, options2, placeholder2
+            value1 = 'EUR'
+            return dropdown1_label, options1, value1, dropdown2_label, options2, value2
         elif selected_fin_type == 'cryptocurrency':
             options1 = [{'label': i, 'value': j} for i,j in cryptocurrencies.items()]
-            placeholder1 = "Select a Ticker Symbol"
-            options2 = [{'label': i, 'value': i} for i in fin_metrics]
-            placeholder2 = "Select a metric to graph"
-            return options1, placeholder1, options2, placeholder2
-
+            value1 = 'BTC'
+            return dropdown1_label, options1, value1, dropdown2_label, options2, value2
 
 
 
@@ -313,15 +371,16 @@ def update_dropdown_options(selected_category, selected_fin_type):
 ##########   Callbacks for Graph section (including tabs)############
 
 @app.callback(
-    Output('tab1', 'label'),
-    Output('tab2', 'label'),
-    Output('tab3', 'label'),
+    [Output('tabs', 'value'),
+     Output('tab1', 'label'),
+     Output('tab2', 'label'),
+     Output('tab3', 'label')],
     [Input('categories', 'value')])
 def update_tab_labels(selected_category):
     if selected_category == 'cat-1':
-        return 'Daily Sentiment', 'Word Frequencies', 'Facebook Prophet Seasonality'
+        return 'tab-1', 'Daily Sentiment', 'Word Frequencies', 'Facebook Prophet Seasonality'
     elif selected_category == 'cat-2':
-        return 'Overall Performance', 'Chosen Metric', 'Facebook Prophet Seasonality'
+        return 'tab-1', 'Overall Performance', 'Chosen Metric', 'Facebook Prophet Seasonality'
 
 
 @app.callback(
@@ -430,8 +489,8 @@ def update_graph(selected_category,
             fbp_temp_df.columns = ['ds','y']
             #make model and forecast
             m = Prophet(holidays=phases_FBP)
-            m.fit(grp_mood)
-            future = m.make_future_dataframe(periods=60, freq='D')
+            m.fit(fbp_temp_df)
+            future = m.make_future_dataframe(periods=1)
             if selected_radio != 'cryptocurrency':
                 future = future[~future['ds'].isin(weekends_df.date)]            
             forecast = m.predict(future)
@@ -443,4 +502,4 @@ def update_graph(selected_category,
 
 # automatically update HTML display if a change is made to code
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)   #set to False for production so users don't get errors
