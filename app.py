@@ -94,6 +94,8 @@ def plot_holidays_component_plotly(m, fcst):
 #############################################
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.GRID])
+server = app.server
+
 
 markdown_paragraph = '''
 ### About this Project
@@ -151,11 +153,21 @@ queries = ['(no keywords entered)',
            'politics OR government OR Trump',
            'data science OR coding OR programming']
 moons = ['No Phase', 'Full Moon','Last Quarter','New Moon','First Quarter']
-stocks = {'Microsoft':'MSFT',
+stocks = {'Apple': 'AAPL',
+          'Amazon':'AMZN',
+          'Dow Jones Industrial':'DJI',
+          'Facebook':'FB',
+          'Microsoft':'MSFT',
+          'Google':'GOOG',
           'S&P 500 Index':'INX',
-          'SBA Communications':'SBAC'}
-currencies = {'Euro':'EUR'}
-cryptocurrencies = {'Bitcoin':'BTC'}
+          'SBA Communications':'SBAC',
+          'Twitter':'TWTR'}
+currencies = {'Euro':'EUR',
+              'Great British Pound':'GBP',
+              'Japanese Yen':'JPY',
+              'Swiss Franc':'CHF'}
+cryptocurrencies = {'Bitcoin':'BTC',
+                    'Ethereum':'ETH'}
 fin_metrics = ['open','close','close_24','change_24','range',
                'range_24','high','low','high_24','low_24']
 
