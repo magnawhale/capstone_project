@@ -2,6 +2,7 @@
 # Lunar Cycles and Human Behavior
 
    * [Powerpoint project summary](Lunar.pptx)
+   * [Interactive Dashboard](https://human-lunar-cycles.herokuapp.com/) - in case you want to explore my findings for yourself
 
 ## Introduction
 
