@@ -108,7 +108,7 @@ If you wish to look at the code for yourself, please refer to the project's
 [GitHub repository]('https://github.com/magnawhale/capstone_project').
 
 For a fascinating (but slow-loading) sample exploration of Tweets, 
-download and then open view my 
+download and then open my 
 [Scattertext html file]('https://github.com/magnawhale/capstone_project/blob/master/Scattertext_nowords_example.html').
 Just continue loading if you get any error messages about responsiveness when opening this file.
 '''
